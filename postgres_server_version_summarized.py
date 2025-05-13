@@ -458,22 +458,24 @@ def connect_to_postgres(connection_string: str, db_name: str, summary_folder_pat
     }
 
 @mcp.tool()
-def initialize_db_summary(db_name: str) -> Dict[str, Any]:
+def initialize_db_summary(db_name: str, summary_file_path_str: str) -> Dict[str, Any]:
     """
-    Reads and returns the content of the pre-generated database schema summary file.
+    Reads and returns the content of the pre-generated database schema summary file
+    using a provided full path.
     
     Args:
-        db_name: The name of the database connection for which to load the summary.
+        db_name: The name of the database connection (for context in return value).
+        summary_file_path_str: The full path to the summary file.
         
     Returns:
         Dictionary with the summary content or an error message.
     """
-    summary_file_path = Path("sql-generator") / "summary" / f"{db_name}_public_schema_summary.md"
+    summary_file_path = Path(summary_file_path_str)
     
     if not summary_file_path.exists():
         return {
             "success": False,
-            "message": f"Summary file not found: {summary_file_path}. Ensure 'connect_to_postgres' was called first with an API key."
+            "message": f"Summary file not found at the provided path: {summary_file_path}. Ensure the path is correct and 'connect_to_postgres' was called if it's supposed to be generated."
         }
     
     try:
