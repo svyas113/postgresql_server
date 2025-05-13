@@ -374,38 +374,39 @@ def connect_to_postgres(connection_string: str, db_name: str, schema_folder_path
     }
 
 @mcp.tool()
-def initialize_db_summary(db_name: str) -> Dict[str, Any]:
+def initialize_db_summary(db_name: str, summary_file_path_str: str) -> Dict[str, Any]:
     """
-    Reads and returns the content of the pre-generated schema and data dump Markdown file.
+    Reads and returns the content of the pre-generated schema and data dump Markdown file
+    using a provided full path.
     
     Args:
-        db_name: The name of the database connection for which to load the dump.
+        db_name: The name of the database connection (for context in return value).
+        summary_file_path_str: The full path to the schema and data dump file.
         
     Returns:
         Dictionary with the dump content or an error message.
     """
-    # Path matches the one used in connect_to_postgres
-    dump_file_path = Path("mcp_servers") / "db_schemas" / f"{db_name}_schema_data.md"
+    summary_file_path = Path(summary_file_path_str)
     
-    if not dump_file_path.exists():
+    if not summary_file_path.exists():
         return {
             "success": False,
-            "message": f"Schema and data dump file not found: {dump_file_path}. Ensure 'connect_to_postgres' was called successfully first."
+            "message": f"Schema and data dump file not found at the provided path: {summary_file_path}. Ensure the path is correct and 'connect_to_postgres' was called if it's supposed to be generated."
         }
     
     try:
-        with open(dump_file_path, "r", encoding="utf-8") as f:
+        with open(summary_file_path, "r", encoding="utf-8") as f:
             content = f.read()
         return {
             "success": True,
             "db_name": db_name,
-            "schema_data_file_path": str(dump_file_path.resolve()),
-            "schema_data_content": content
+            "summary_file_path": str(summary_file_path.resolve()), # Renamed for consistency
+            "summary_content": content  # Renamed for consistency
         }
     except Exception as e:
         return {
             "success": False,
-            "message": f"Error reading schema and data dump file '{dump_file_path}': {e}"
+            "message": f"Error reading schema and data dump file '{summary_file_path}': {e}"
         }
 
 @mcp.tool()
